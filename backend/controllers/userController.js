@@ -1,0 +1,145 @@
+const User = require("../models/userModel");
+const z = require("zod");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const registerSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const registerUser = async (req, res) => {
+  try {
+    //collect data
+    const { firstName, lastName, email, password } = req.body;
+
+    //zod validation
+    const parsedResult = registerSchema.safeParse(req.body);
+
+    if (!parsedResult.success) {
+      return res.status(500).json({ error: result.error.errors[0].message });
+    }
+
+    //check if exists
+    const userExist = await User.findOne({ email });
+    if (userExist) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    //hash password
+    const hashedPass = await bcrypt.hash(password, 5);
+
+    //create user
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: hashedPass,
+    });
+
+    res.status(201).json({ message: "User registered successfully", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+const loginUser = async (req, res) => {
+  try {
+    //data collect
+    const { email, password } = req.body;
+
+    //zod validation
+    const parsedResult = loginSchema.safeParse(req.body);
+    if (!parsedResult.success) {
+      return res.status(400).json({ message: "Invalid Inputs" });
+    }
+
+    //find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    //check password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(403).json({ message: "Invalid password" });
+    }
+
+    //gen jwt token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    //user data without password
+    const userData = { ...user._doc };
+    delete userData.password;
+
+    res.status(201).json({
+      message: "Login successful",
+      token,
+      user: userData,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+const myProfile = async (req, res) => {
+  try {
+    res.status(200).json({ user: req.user });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const publicUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(403).json({ message: "Server error/publicUser" });
+  }
+};
+
+const updateSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+});
+
+const updateUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email } = req.body;
+
+    const parsedResult = updateSchema.safeParse(req.body);
+    if (!parsedResult.success) {
+      return res.status(500).json({ message: "Invalid inputs" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.body._id,
+      { firstName, lastName, email },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res
+      .status(200)
+      .json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (err) {
+    res.status(503).json({ message: "Server error" });
+  }
+};
+
+module.exports = { registerUser, loginUser, myProfile, publicUser, updateUser };

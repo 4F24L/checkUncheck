@@ -3,6 +3,8 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
+//register schema - zod
 const registerSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
@@ -10,6 +12,7 @@ const registerSchema = z.object({
   password: z.string().min(6),
 });
 
+//POST /user/register
 const registerUser = async (req, res) => {
   try {
     //collect data
@@ -45,11 +48,15 @@ const registerUser = async (req, res) => {
   }
 };
 
+
+//login schema - zod
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
+
+//POST /user/login
 const loginUser = async (req, res) => {
   try {
     //data collect
@@ -92,6 +99,8 @@ const loginUser = async (req, res) => {
   }
 };
 
+
+//GET /user/me
 const myProfile = async (req, res) => {
   try {
     res.status(200).json({ user: req.user });
@@ -100,6 +109,8 @@ const myProfile = async (req, res) => {
   }
 };
 
+
+//GET /user/:id
 const publicUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -113,12 +124,15 @@ const publicUser = async (req, res) => {
   }
 };
 
+//update schema - zod
 const updateSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string().email(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().email().optional(),
 });
 
+
+//PUT /user/update
 const updateUser = async (req, res) => {
   try {
     const { firstName, lastName, email } = req.body;
@@ -128,9 +142,15 @@ const updateUser = async (req, res) => {
       return res.status(500).json({ message: "Invalid inputs" });
     }
 
+    const updateData = {
+      ...(firstName && { firstName }),
+      ...(lastName && { lastName }),
+      ...(email && { email }),
+    };
+
     const updatedUser = await User.findByIdAndUpdate(
-      req.body._id,
-      { firstName, lastName, email },
+      req.user._id,
+      updateData,
       { new: true, runValidators: true }
     ).select("-password");
 

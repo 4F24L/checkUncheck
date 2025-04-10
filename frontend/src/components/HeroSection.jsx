@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import api from '../utils/api'
+import toast, { Toaster } from 'react-hot-toast';
 
 
 
@@ -12,12 +13,18 @@ const HeroSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if(!email) return toast.error("Email required")
       const response = await api.post("/collect-email", {
         email:email,
       });
       
       if (response.status === 200) {
         setSubmitted(true);
+        setEmail("");
+        toast.success("Thank you for subscribing!")
+        setTimeout(() => {
+          toast.success("We'll keep you updated")
+        }, 1700);
       } else {
         console.error("Error:", response.data.message); 
       }
@@ -54,6 +61,8 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
+
+      <Toaster/>
     </div>
   );
 };

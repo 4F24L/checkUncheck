@@ -31,6 +31,7 @@ const HeroSection = () => {
       }
     } catch (error) {
       console.error("Error:", error);
+      toast.error(error?.response?.data?.message);
     }
   };
 

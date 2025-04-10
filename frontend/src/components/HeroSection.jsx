@@ -22,7 +22,6 @@ const HeroSection = () => {
         setTimeout(() => {
           toast.success("We'll keep you updated");
         }, 1700);
-        toast.error("Error: " + error);
       } else if (response.status === 400) {
         toast.error(response.data.message);
       } else {

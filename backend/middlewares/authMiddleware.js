@@ -8,11 +8,14 @@ const verifyToken = async (req, res, next) => {
       return res.status(400).json({ message: "No token found" });
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decodedToken.id).select("-password");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = await User.findById(decoded.id).select("-password");
 
     next();
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired, Please re-login" });
+    }
     res.status(401).json({ message: "Invalid token" });
   }
 };

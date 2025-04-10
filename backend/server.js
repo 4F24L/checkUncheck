@@ -10,7 +10,10 @@ const taskRouter = require('./routes/taskRoutes');
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", // apna frontend URL
+  credentials: true,
+}));
 
 async function startServer() {
   try {

@@ -1,4 +1,5 @@
 const Group = require("../models/groupModel");
+const User = require('../models/userModel');
 const z = require("zod");
 
 // create schema - zod
@@ -14,7 +15,7 @@ const createGroup = async (req, res) => {
   try {
     //collect data
     const { title, description, visibility } = req.body;
-    const createdBy = req.user._id;
+    const createdBy = req.user._id.toString();
 
     //zod validation
     const parsedResult = groupSchema.safeParse({ ...req.body, createdBy });
@@ -35,24 +36,31 @@ const createGroup = async (req, res) => {
       title,
       description,
       createdBy,
+      members:createdBy,
       visibility,
     });
+
+    await User.findByIdAndUpdate(createdBy, {
+      $push: {groupsJoined: group._id}
+    })
+
     res.status(201).json({ message: "group created succesfully", group });
   } catch (err) {
-    res.status(503).json({ message: "Server error", err });
+    res.status(503).json({ message: "Server error" });
+    console.log(err)
   }
 };
 
 //GET /group/all
 const getAllGroups = async (req, res) => {
   try {
-    const allGroups = await Group.find({ visibility: "public" });
+    const allGroups = await Group.find({ visibility: "public" }).populate('createdBy', '-password').populate('members', 'firstName lastName email');
 
     //   const publicGroups = allGroups.filter((group) => {
     //     return group.visibility === "public";
     //   });
 
-    res.status(201).json({ allGroups });
+    res.status(200).json({ allGroups });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -91,11 +99,11 @@ const deleteGroup = async (req, res) => {
 
 //update schema - zod
 const updateSchema = z.object({
-  title: z.string().max(20),
-  description: z.string().max(100),
-  visibility: z.string(),
-  inviteCode: z.string(),
-  entryPassword: z.string().max(6),
+  title: z.string().max(20).optional(),
+  description: z.string().max(100).optional(),
+  visibility: z.string().optional(),
+  inviteCode: z.string().optional(),
+  entryPassword: z.string().max(6).optional(),
 });
 
 

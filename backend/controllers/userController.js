@@ -3,7 +3,6 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-
 //register schema - zod
 const registerSchema = z.object({
   firstName: z.string(),
@@ -48,13 +47,11 @@ const registerUser = async (req, res) => {
   }
 };
 
-
 //login schema - zod
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
-
 
 //POST /user/login
 const loginUser = async (req, res) => {
@@ -89,7 +86,7 @@ const loginUser = async (req, res) => {
     const userData = { ...user._doc };
     delete userData.password;
 
-    res.status(201).json({
+    res.status(200).json({
       message: "Login successful",
       token,
       user: userData,
@@ -99,7 +96,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-
 //GET /user/me
 const myProfile = async (req, res) => {
   try {
@@ -108,7 +104,6 @@ const myProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 //GET /user/:id
 const publicUser = async (req, res) => {
@@ -131,7 +126,6 @@ const updateSchema = z.object({
   email: z.string().email().optional(),
 });
 
-
 //PUT /user/update
 const updateUser = async (req, res) => {
   try {
@@ -148,11 +142,10 @@ const updateUser = async (req, res) => {
       ...(email && { email }),
     };
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      updateData,
-      { new: true, runValidators: true }
-    ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
 
     res
       .status(200)
@@ -162,4 +155,20 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, myProfile, publicUser, updateUser };
+//GET /user/mygroups
+const myGroups = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!userId) return res.status(404).json({ message: "User id required" });
+
+    const userExist = await User.findById(userId).populate('groupsJoined');
+    if (!userExist) return res.status(404).json({ message: "User not found" });
+
+    const groups = userExist.groupsJoined;
+    res.status(200).json(groups);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { registerUser, loginUser, myProfile, publicUser, updateUser, myGroups };

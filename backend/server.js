@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:5173", "checkuncheck.vercel.app"], // apna frontend URL
+  origin: ["http://localhost:5173", "https://checkuncheck.vercel.app"], // apna frontend URL
   credentials: true,
 }));
 

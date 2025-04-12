@@ -21,7 +21,7 @@ const registerUser = async (req, res) => {
     const parsedResult = registerSchema.safeParse(req.body);
 
     if (!parsedResult.success) {
-      return res.status(500).json({ error: result.error.errors[0].message });
+      return res.status(500).json({ error: parsedResult.error.errors[0].message });
     }
 
     //check if exists
@@ -105,10 +105,11 @@ const myProfile = async (req, res) => {
   }
 };
 
-//GET /user/:id
+//GET /user/id/:id
 const publicUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(403).json({ message: "User not found" });
     }

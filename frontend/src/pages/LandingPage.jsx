@@ -1,10 +1,11 @@
 import React from "react";
-import HeroSection from "../components/HeroSection";
 import Nav from "../components/Nav";
+import HeroSection from "../components/Hero-Section";
+import HeroNext from "../components/HeroNext";
 
 const LandingPage = () => {
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
+    <div className="relative min-h-screen bg-black text-white overflow-hidden sm:pt-2">
       <svg
         className="absolute inset-0 w-full h-full z-0"
         xmlns="http://www.w3.org/2000/svg"
@@ -26,6 +27,7 @@ const LandingPage = () => {
 
       <Nav />
       <HeroSection />
+      <HeroNext/>
     </div>
   );
 };

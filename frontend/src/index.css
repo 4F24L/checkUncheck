@@ -1,5 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
-@layer utilities {
+
+
+* {
+  box-sizing: border-box;
+  /* font-family: "Montserrat", sans-serif; */
+}
+
+html {
+  scroll-behavior: smooth;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+
+/* Style scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #181818;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #8db443ad;
+    border-radius: 20px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #515151;
+  }
+  
+  /* flowing border style  */
+  @layer utilities {
   .flowing-border {
     position: relative;
     border-radius: 8px; /* Match border radius */
@@ -45,37 +82,5 @@
   }
 }
 
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-/* Style scrollbar */
-::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #181818;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #8db443ad;
-    border-radius: 20px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #515151;
-  }
-  
-  
 
   

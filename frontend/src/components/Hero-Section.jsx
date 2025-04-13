@@ -4,9 +4,9 @@ import toast, { Toaster } from "react-hot-toast";
 
 const HeroSection = () => {
   return (
-    <div className="relative z-10 sm:mb-9 text-white overflow-x-hidden">
+    <div className="relative z-5 sm:mb-9 text-white overflow-x-hidden">
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-3 mt-16 pt-14">
+      <div className="relative z-5 flex flex-col items-center justify-center text-center px-3 mt-16 pt-14">
         <div className="w-full max-w-2xl">
           <h1 className="text-3xl md:text-6xl font-semibold mb-6">
             checkUncheck

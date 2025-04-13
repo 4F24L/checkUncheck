@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import logo from "../assets/checkUncheck-logo.png";
 import {
   ChevronLeft,
+  ChevronUp,
   EllipsisVertical,
   Info,
   LayoutList,
@@ -20,7 +21,7 @@ const Nav = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef(null);
-
+  const [showTop, setShowTop] = useState(false);
   const handleClickOutside = () => setMenuOpen(false);
   useClickOutside(ref, handleClickOutside);
 
@@ -36,6 +37,19 @@ const Nav = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowTop(true);
+      } else {
+        setShowTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="relative z-10 md:px-14 text-white overflow-hidden">
@@ -97,11 +111,24 @@ const Nav = () => {
                 }}
                 className=" flex items-center py-1 gap-2 border text-[1.35rem] px-2.5 mx-2 rounded-lg mb-2.5 bg-[#181818] text-[#efefef]"
               >
-                <item.logo size={25}/> {item.label}
+                <item.logo size={25} /> {item.label}
               </li>
             ))}
           </ul>
         </div>
+      )}
+
+      {/* back to top button  */}
+      {showTop && (
+        <span
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className="fixed right-7 bottom-5 border-[2px] border-[#6a6262] rounded-lg bg-[#2C2828] cursor-pointer transform transition-transform duration-300"
+        >
+          <ChevronUp size={30} />
+        </span>
       )}
     </div>
   );

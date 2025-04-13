@@ -2,6 +2,20 @@ import React from "react";
 import logo from '../assets/checkUncheck-logo.png'
 
 const Nav = () => {
+  const navItems = [
+    { id: "#features", label: "Features" },
+    { id: "#about", label: "About" },
+    { id: "#testimonials", label: "Testimonials" },
+    { id: "#faqs", label: "FAQs" },
+  ];
+
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="relative z-10 md:px-14 text-white overflow-hidden">
       <nav className="relative z-10 flex items-center justify-between px-8 py-4">
@@ -10,22 +24,15 @@ const Nav = () => {
 
         {/* Nav elems  */}
         <ul className="hidden md:flex gap-12 text-base list-none border-2 border-[#c4b8b86b] bg-[#453e3ea4] px-10 py-2 rounded-full">
-          <li><a href="#features" className="hover:text-lime-400">
-            Features
-          </a></li>
-
-          <li><a href="#about" className="hover:text-lime-400">
-            About
-          </a></li>
-
-          <li><a href="#services" className="hover:text-lime-400">
-            Services
-          </a></li>
-
-          <li><a href="#faqs" className="hover:text-lime-400">
-            FAQs
-          </a></li>
-          
+          {navItems.map((item) => (
+            <li key={item.id}>
+              <a  onClick={()=>{
+                scrollToSection(item.id)
+              }} className="hover:text-lime-400 cursor-pointer ">
+                {item.label}
+              </a> 
+            </li>
+          ))}
         </ul>
 
          {/* button  */}

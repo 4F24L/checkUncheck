@@ -1,1 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
+
+
+* {
+  box-sizing: border-box;
+  /* font-family: "Montserrat", sans-serif; */
+}
+
+html {
+  scroll-behavior: smooth;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+
+/* Style scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #181818;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #8db443ad;
+    border-radius: 20px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #515151;
+  }
+  
+  /* flowing border style  */
+  @layer utilities {
+  .flowing-border {
+    position: relative;
+    border-radius: 8px; /* Match border radius */
+  }
+
+  .flowing-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 8px; /* Match outer radius */
+    opacity: 0.5;
+    border: 2px solid transparent;
+    background:
+      linear-gradient(to right, #a3e635, #a3e635) top left no-repeat,
+      linear-gradient(to bottom, #a3e635, #a3e635) top right no-repeat,
+      linear-gradient(to left, #a3e635, #a3e635) bottom right no-repeat,
+      linear-gradient(to top, #a3e635, #a3e635) bottom left no-repeat;
+    background-size: 0% 2px, 2px 0%, 0% 2px, 2px 0%;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+
+  .flowing-border:hover::before {
+    animation: borderFlow 3.5s linear forwards;
+  }
+
+  @keyframes borderFlow {
+    0% {
+      background-size: 0% 2px, 2px 0%, 0% 2px, 2px 0%;
+    }
+    25% {
+      background-size: 100% 2px, 2px 0%, 0% 2px, 2px 0%;
+    }
+    50% {
+      background-size: 100% 2px, 2px 100%, 0% 2px, 2px 0%;
+    }
+    75% {
+      background-size: 100% 2px, 2px 100%, 100% 2px, 2px 0%;
+    }
+    100% {
+      background-size: 100% 2px, 2px 100%, 100% 2px, 2px 100%;
+    }
+  }
+}
+
+
+  

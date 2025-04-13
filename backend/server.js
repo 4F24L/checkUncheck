@@ -3,18 +3,20 @@ const env = require("dotenv").config();
 const app = express();
 const cors = require("cors");
 const connectDb = require("./config/db");
-const userRouter = require('./routes/userRoutes');
-const groupRouter = require('./routes/groupRoutes');
-const taskRouter = require('./routes/taskRoutes');
+const userRouter = require("./routes/userRoutes");
+const groupRouter = require("./routes/groupRoutes");
+const taskRouter = require("./routes/taskRoutes");
 const Email = require("./models/emailSchema");
 
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use(cors({
-  origin: ["http://localhost:5173", "https://checkuncheck.vercel.app"], // apna frontend URL
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://checkuncheck.vercel.app"], // apna frontend URL
+    credentials: true,
+  })
+);
 
 async function startServer() {
   try {
@@ -29,13 +31,13 @@ app.get("/", (req, res) => {
   res.send("Hello checkUncheck !!");
 });
 
-app.use('/api/user' , userRouter);
+app.use("/api/user", userRouter);
 
-app.use('/api/group', groupRouter);
+app.use("/api/group", groupRouter);
 
-app.use('/api/task', taskRouter);
+app.use("/api/task", taskRouter);
 
-app.post('/collect-email', async (req, res) => {
+app.post("/collect-email", async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -55,4 +57,5 @@ app.post('/collect-email', async (req, res) => {
   }
 });
 
-startServer(); 
+
+startServer();

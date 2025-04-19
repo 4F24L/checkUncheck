@@ -1,12 +1,21 @@
 import axios from "axios";
 
-const BASE_URL = "https://checkuncheck.up.railway.app"; // Updated backend URL
-
+// Create an axios instance
 const api = axios.create({
-  baseURL: BASE_URL, 
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api", // Set this in .env
+  withCredentials: true, // for sending cookies if needed
   headers: {
-    "Content-Type": "application/json", 
+    "Content-Type": "application/json",
   },
+});
+
+// Optional: Add token to headers if logged in
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token"); // Or sessionStorage
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export default api;

@@ -3,7 +3,7 @@ const z = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 //google auth setup
-const { OAuth2Client } = require('google-auth-library');
+const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 //register schema - zod
@@ -24,7 +24,9 @@ const registerUser = async (req, res) => {
     const parsedResult = registerSchema.safeParse(req.body);
 
     if (!parsedResult.success) {
-      return res.status(500).json({ error: parsedResult.error.errors[0].message });
+      return res
+        .status(500)
+        .json({ error: parsedResult.error.errors[0].message });
     }
 
     //check if exists
@@ -103,6 +105,8 @@ const loginUser = async (req, res) => {
 
 const googleLogin = async (req, res) => {
   const { token } = req.body;
+  if (!token) return res.status(400).json({ message: "No token provided" });
+
   try {
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -114,11 +118,15 @@ const googleLogin = async (req, res) => {
 
     // Optional: Reject fake/unauthorized domains
     if (!email.endsWith("@gmail.com")) {
-      return res.status(403).json({ message: "Only Gmail accounts are allowed" });
+      return res
+        .status(403)
+        .json({ message: "Only Gmail accounts are allowed" });
     }
 
     // Check if user exists
-    let user = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    let user = await User.findOne({ normalizedEmail });
 
     if (!user) {
       // If not, create user (you can customize fields as needed)
@@ -129,13 +137,18 @@ const googleLogin = async (req, res) => {
         lastName,
         email,
         password: "", // No password required for Google Auth
+        picture,
       });
     }
 
     // Create token
-    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const jwtToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     const userData = { ...user._doc };
     delete userData.password;
@@ -143,13 +156,12 @@ const googleLogin = async (req, res) => {
     return res.status(200).json({
       message: "Google login successful",
       token: jwtToken,
-      user: userData,
+      user: { ...userData },
     });
   } catch (error) {
     return res.status(401).json({ message: "Invalid token", error });
   }
 };
-
 
 //GET /user/me
 const myProfile = async (req, res) => {
@@ -217,7 +229,7 @@ const myGroups = async (req, res) => {
     const userId = req.user._id;
     if (!userId) return res.status(404).json({ message: "User id required" });
 
-    const userExist = await User.findById(userId).populate('groupsJoined');
+    const userExist = await User.findById(userId).populate("groupsJoined");
     if (!userExist) return res.status(404).json({ message: "User not found" });
 
     const groups = userExist.groupsJoined;
@@ -227,4 +239,12 @@ const myGroups = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, googleLogin, myProfile, publicUser, updateUser, myGroups };
+module.exports = {
+  registerUser,
+  loginUser,
+  googleLogin,
+  myProfile,
+  publicUser,
+  updateUser,
+  myGroups,
+};

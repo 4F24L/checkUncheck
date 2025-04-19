@@ -2,6 +2,9 @@ const User = require("../models/userModel");
 const z = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+//google auth setup
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 //register schema - zod
 const registerSchema = z.object({
@@ -96,6 +99,58 @@ const loginUser = async (req, res) => {
   }
 };
 
+//Google auth - login
+
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    const { email, name, picture } = payload;
+
+    // Optional: Reject fake/unauthorized domains
+    if (!email.endsWith("@gmail.com")) {
+      return res.status(403).json({ message: "Only Gmail accounts are allowed" });
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // If not, create user (you can customize fields as needed)
+      const [firstName, ...rest] = name.split(" ");
+      const lastName = rest.join(" ") || "";
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password: "", // No password required for Google Auth
+      });
+    }
+
+    // Create token
+    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    const userData = { ...user._doc };
+    delete userData.password;
+
+    return res.status(200).json({
+      message: "Google login successful",
+      token: jwtToken,
+      user: userData,
+    });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token", error });
+  }
+};
+
+
 //GET /user/me
 const myProfile = async (req, res) => {
   try {
@@ -172,4 +227,4 @@ const myGroups = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, myProfile, publicUser, updateUser, myGroups };
+module.exports = { registerUser, loginUser, googleLogin, myProfile, publicUser, updateUser, myGroups };
